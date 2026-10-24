@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#102b3a">
+  <title>SmartPark | Intelligent Parking Allocation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- First page / welcome screen -->
+  <section id="welcomeScreen" class="welcome-screen">
+    <div class="welcome-nav">
+      <div class="brand-lockup"><span class="brand-mark">S</span><span>SmartPark</span></div>
+      <span class="welcome-chip">ALGORITHM ANALYSIS & DESIGN</span>
+    </div>
+    <div class="welcome-content">
+      <div class="welcome-copy">
+        <p class="eyebrow eyebrow-light">SMART PARKING · SMARTER CITIES</p>
+        <h1>Every space.<br><span>Allocated intelligently.</span></h1>
+        <p class="welcome-description">A parking allocation simulator that puts Greedy and Hungarian algorithms to the test — with live results and animated parking.</p>
+        <div class="welcome-actions">
+          <button id="enterAppBtn" class="button button-lime">Explore SmartPark <span aria-hidden="true">→</span></button>
+          <span class="welcome-note"><span class="pulse-dot"></span> Interactive simulation</span>
+        </div>
+        <div class="welcome-proof">
+          <div><strong>02</strong><span>Algorithms</span></div>
+          <div><strong>12</strong><span>Parking spaces</span></div>
+          <div><strong>01</strong><span>Live simulator</span></div>
+        </div>
+      </div>
+      <div class="welcome-visual" aria-hidden="true">
+        <div class="visual-orbit orbit-one"></div><div class="visual-orbit orbit-two"></div>
+        <div class="visual-caption caption-top"><span class="caption-dot green"></span> SMART ALLOCATION</div>
+        <div class="mini-lot">
+          <div class="mini-lane"><span>ENTRY</span><span class="lane-dashes"></span><span>EXIT</span></div>
+          <div class="mini-spaces">
+            <div class="mini-space"><span>P1</span><b>🚗</b></div>
+            <div class="mini-space empty"><span>P2</span><b>＋</b></div>
+            <div class="mini-space"><span>P3</span><b>🚙</b></div>
+            <div class="mini-space special"><span>P4 · EV</span><b>⚡</b></div>
+            <div class="mini-space empty"><span>P5</span><b>＋</b></div>
+            <div class="mini-space"><span>P6</span><b>🚗</b></div>
+          </div>
+          <div class="mini-route"><span></span><span></span><span></span></div>
+        </div>
+        <div class="floating-stat"><span class="floating-icon">↗</span><div><strong>Optimized</strong><small>Allocation decisions</small></div></div>
+        <div class="visual-caption caption-bottom"><span class="caption-dot blue"></span> GREEDY VS HUNGARIAN</div>
+      </div>
+    </div>
+    <div class="welcome-footer"><span>SMARTPARK © 2026</span><span>SDG 11 · SUSTAINABLE CITIES & COMMUNITIES</span></div>
+  </section>
+
+  <!-- App dashboard is shown after the welcome page -->
+  <div id="appScreen" class="app-screen hidden">
+    <header class="topbar">
+      <button id="homeBtn" class="brand-lockup topbar-brand" aria-label="Back to welcome page"><span class="brand-mark">S</span><span>SmartPark</span></button>
+      <div class="topbar-subtitle">Dynamic Parking Allocation & Optimization</div>
+      <span class="header-tag">AAD PROJECT</span>
+    </header>
+    <main class="container">
+      <section class="intro">
+        <div><p class="eyebrow">CONTROL CENTRE</p><h2>Parking overview</h2><p class="intro-copy">Manage vehicle requests, visualize allocation, and compare both algorithms.</p></div>
+        <button id="resetBtn" class="button button-outline">↻ Reset simulation</button>
+      </section>
+
+      <div id="message" class="message hidden" role="status" aria-live="polite"></div>
+
+      <section class="stats-grid">
+        <article class="stat-card"><span>Total spaces</span><strong id="totalSpaces">—</strong><small>Parking capacity</small></article>
+        <article class="stat-card"><span>Available</span><strong id="availableSpaces">—</strong><small>Ready to assign</small></article>
+        <article class="stat-card"><span>Occupied</span><strong id="occupiedSpaces">—</strong><small>Currently parked</small></article>
+        <article class="stat-card"><span>Pending requests</span><strong id="pendingVehicles">—</strong><small>Awaiting allocation</small></article>
+      </section>
+
+      <div class="main-grid">
+        <section class="panel parking-panel">
+          <div class="section-heading"><div><p class="eyebrow">LIVE SIMULATION</p><h3>Parking lot</h3></div><span class="muted" id="parkingSubtitle">Loading…</span></div>
+          <div class="legend"><span><i class="dot available-dot"></i> Available</span><span><i class="dot occupied-dot"></i> Occupied</span><span><i class="dot ev-dot"></i> EV</span><span><i class="dot accessible-dot"></i> Accessible</span></div>
+          <div class="animation-controls inline-animation-controls">
+            <button type="button" id="playAnimationBtn" class="button button-primary">▶ Replay last allocation</button>
+            <button type="button" id="resetAnimationBtn" class="button button-outline">Reset animation view</button>
+            <span id="animationStatus" class="animation-status">Ready</span>
+          </div>
+          <div id="animationStage" class="animation-stage single-lot-stage">
+            <div class="animation-road"><span>ENTRANCE</span><span class="road-arrow">↓</span><span>DRIVING LANE</span></div>
+            <div id="parkingGrid" class="parking-grid animation-slots"></div>
+            <div id="animationCars" class="animation-cars"></div>
+          </div>
+          <p id="animationMessage" class="hint" aria-live="polite">Add vehicles and run an allocation to watch them park. You can replay the last allocation.</p>
+          <p class="hint">Distances are simulated metres from the entrance.</p>
+        </section>
+        <section class="panel">
+          <div class="section-heading"><div><p class="eyebrow">NEW REQUEST</p><h3>Add a vehicle</h3></div></div>
+          <form id="vehicleForm" class="vehicle-form">
+            <label for="vehicleName">Vehicle name / ID</label><input id="vehicleName" placeholder="e.g. Car 6" required maxlength="50">
+            <label for="vehicleSize">Vehicle size</label><select id="vehicleSize"><option value="NORMAL">Normal vehicle</option><option value="LARGE">Large vehicle (van)</option></select>
+            <label class="check-row"><input id="needsEV" type="checkbox"> Requires EV charging</label>
+            <label class="check-row"><input id="needsAccessible" type="checkbox"> Requires accessible space</label>
+            <button class="button button-primary full-width" type="submit">＋ Add vehicle request</button>
+          </form>
+          <div class="divider"></div>
+          <div class="section-heading"><div><p class="eyebrow">ALLOCATION</p><h3>Run an algorithm</h3></div></div>
+          <label for="algorithmSelect">Choose algorithm</label>
+          <select id="algorithmSelect"><option value="greedy">Greedy allocation</option><option value="hungarian">Hungarian algorithm</option></select>
+          <button id="runBtn" class="button button-primary full-width">Run allocation →</button>
+          <button id="compareBtn" class="button button-outline full-width">Compare both algorithms</button>
+          <p class="hint">Compare previews both algorithms without changing the parking lot. Run allocation to commit the selected result.</p>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="section-heading"><div><p class="eyebrow">ASSIGNMENT OUTPUT</p><h3>Vehicle allocation results</h3></div><span class="muted" id="resultsCount">0 records</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Vehicle</th><th>Requirement</th><th>Assigned space</th><th>Distance</th><th>Status</th><th>Action</th></tr></thead><tbody id="vehicleTable"><tr><td colspan="6" class="empty-cell">Loading…</td></tr></tbody></table></div>
+      </section>
+
+      <section class="panel comparison-panel">
+        <div class="section-heading"><div><p class="eyebrow">ALGORITHM ANALYSIS</p><h3>Greedy vs Hungarian</h3><p class="intro-copy">Charts are generated from the current vehicles and available parking spaces each time you compare.</p></div><span class="comparison-badge">Live simulation data</span></div>
+        <div class="metric-grid" id="comparisonCards">
+          <div class="metric-card"><span>Greedy assigned</span><strong>—</strong></div><div class="metric-card"><span>Hungarian assigned</span><strong>—</strong></div><div class="metric-card"><span>Greedy cost</span><strong>—</strong></div><div class="metric-card"><span>Hungarian cost</span><strong>—</strong></div><div class="metric-card"><span>Currently parked</span><strong>—</strong></div>
+        </div>
+        <p class="comparison-snapshot" id="comparisonSnapshot">No comparison yet. Add vehicles, then select Compare algorithms to generate charts from live simulation data.</p>
+        <div class="chart-grid">
+          <article class="chart-card"><div><h4>Vehicles assigned</h4><p>Higher is better</p></div><div class="chart-wrap"><canvas id="assignedChart"></canvas></div></article>
+          <article class="chart-card"><div><h4>Total allocation cost</h4><p>Lower is better</p></div><div class="chart-wrap"><canvas id="costChart"></canvas></div></article>
+          <article class="chart-card"><div><h4>Execution time</h4><p>Milliseconds · lower is faster</p></div><div class="chart-wrap"><canvas id="timeChart"></canvas></div></article>
+        </div>
+        <p class="hint">No sample values are built into these charts. Assigned count and cost come from the current algorithm results; execution time is measured for each run and may vary slightly.</p>
+      </section>
+      <footer>SmartPark · Algorithm Analysis & Design · SDG 11: Sustainable Cities and Communities</footer>
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
