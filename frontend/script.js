@@ -132,15 +132,35 @@ function destroyCharts() {
     });
 }
 
+
 function clearComparison() {
     destroyCharts();
+
     $("#comparisonCards").innerHTML = `
-    <div class="metric-card"><span>Greedy assigned</span><strong>—</strong></div>
-    <div class="metric-card"><span>Hungarian assigned</span><strong>—</strong></div>
-    <div class="metric-card"><span>Greedy cost</span><strong>—</strong></div>
-    <div class="metric-card"><span>Hungarian cost</span><strong>—</strong></div>
-    <div class="metric-card"><span>Currently parked</span><strong>—</strong></div>`;
+        <div class="metric-card"><span>Greedy assigned</span><strong>—</strong></div>
+        <div class="metric-card"><span>Hungarian assigned</span><strong>—</strong></div>
+        <div class="metric-card"><span>Greedy cost</span><strong>—</strong></div>
+        <div class="metric-card"><span>Hungarian cost</span><strong>—</strong></div>
+        <div class="metric-card"><span>Currently parked</span><strong>—</strong></div>
+    `;
+
+    // Clear old chart drawings.
+    ["assignedChart", "costChart", "timeChart"].forEach(id => {
+        const canvas = document.getElementById(id);
+        if (canvas) {
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    });
+
+    // Reset the comparison message.
+    const note = $("#comparisonNote");
+    if (note) {
+        note.textContent =
+            "No comparison yet. Add vehicles, then select Compare Algorithms to generate charts from live simulation data.";
+    }
 }
+
 
 
 function makeBarChart(
@@ -242,10 +262,11 @@ function renderComparison(data, parkedCountOverride) {
 
     // Keep unassigned counts visible in the status message when useful.
     const compareNote = $("#comparisonNote");
-    if (compareNote) {
-        compareNote.textContent = `Unassigned in this preview — Greedy: ${gUnassigned}; Hungarian: ${hUnassigned}.`;
-    }
-
+if (compareNote) {
+    compareNote.textContent =
+        `Comparison complete: Greedy assigned ${gAssigned} vehicles; ` +
+        `Hungarian assigned ${hAssigned} vehicles.`;
+}
     return true;
 }
 
@@ -492,4 +513,15 @@ $("#resetBtn").addEventListener("click", async() => {
     }
 });
 
+function setComparisonVisible(visible) {
+    ["assignedChart", "costChart", "timeChart"].forEach(id => {
+        const canvas = document.getElementById(id);
+        if (!canvas) return;
+
+        const container = canvas.closest(".chart-card");
+        if (container) {
+            container.style.display = visible ? "" : "none";
+        }
+    });
+}
 // App loads the welcome page first; API data loads when user enters dashboard.

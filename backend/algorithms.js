@@ -11,31 +11,28 @@ function compatible(vehicle, space) {
 }
 
 
+
 function cost(vehicle, space) {
-    // Never assign a vehicle to an incompatible space.
     if (!compatible(vehicle, space)) {
         return INF;
     }
 
-    // Base cost: distance from the entrance.
-    let totalCost = Number(space.distance) || 0;
+    const distance = Math.max(0, Number(space.distance) || 0);
+    let totalCost = distance;
 
-    // Preserve specialized spaces for vehicles that need them.
+    // Prefer keeping EV spaces available for EV vehicles.
     if (space.type === "EV" && !vehicle.needsEV) {
         totalCost += 50;
     }
 
-    if (
-        space.type === "ACCESSIBLE" &&
-        !vehicle.needsAccessible
-    ) {
+    // Prefer keeping accessible spaces available for
+    // vehicles that need accessibility.
+    if (space.type === "ACCESSIBLE" && !vehicle.needsAccessible) {
         totalCost += 100;
     }
 
-    if (
-        space.type === "LARGE" &&
-        vehicle.size !== "LARGE"
-    ) {
+    // Prefer keeping large spaces for large vehicles.
+    if (space.type === "LARGE" && vehicle.size !== "LARGE") {
         totalCost += 40;
     }
 
@@ -43,8 +40,11 @@ function cost(vehicle, space) {
 }
 
 
+
 function summarize(algorithm, assignments) {
-    const assigned = assignments.filter((a) => a.status === "Assigned");
+    const assigned = assignments.filter(
+        (a) => a.status === "Assigned" && a.spaceId
+    );
 
     return {
         algorithm,
